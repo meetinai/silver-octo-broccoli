@@ -7,7 +7,15 @@ const router = express.Router();
 router.get('/:restaurantId', async (req, res) => {
     try {
         const foodItems = await FoodItem.find({ restaurant: req.params.restaurantId });
-        res.send(foodItems);
+        res.send(foodItems.map(item => ({
+            id: item._id,
+            name: item.name,
+            price: item.price,
+            description: item.description,
+            imageUrl: item.imageUrl,
+            availableQuantity: item.availableQuantity,
+            restaurant: item.restaurant
+        })));
     } catch (error) {
         res.status(500).send({ message: error.message });
     }
@@ -29,7 +37,18 @@ router.post('/:restaurantId', authMiddleware, async (req, res) => {
 
         const foodItem = new FoodItem({ name, price, description, imageUrl, availableQuantity, restaurant: restaurantId });
         await foodItem.save();
-        res.status(201).send(foodItem);
+        res.status(201).send({
+            message: 'Food item added successfully',
+            foodItem: {
+                id: foodItem._id,
+                name: foodItem.name,
+                price: foodItem.price,
+                description: foodItem.description,
+                imageUrl: foodItem.imageUrl,
+                availableQuantity: foodItem.availableQuantity,
+                restaurant: foodItem.restaurant
+            }
+        });
     } catch (error) {
         res.status(500).send({ message: error.message });
     }
